@@ -1,0 +1,9 @@
+For correct blank substraction, make sure to specify the positions of your blank wells.
+
+Accepted formats include comma-seperation of arbitrary wells (e.g. 'H10, H11, H12' or
+'A1, D10, C7' [both without '']) or colons to indicate a row of wells.
+
+'A1:A10' corresponds to 'A1, A2, A3, A4, A5, A6, A7, A8, A9, A10'.
+
+If only a number is provided, it will be evaluated to select the complete row:
+'12' evaluates to 'A12, B12, C12, D12, E12, F12, G12, H12'

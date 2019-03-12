@@ -1,0 +1,22 @@
+OCUTaF is used to process data aquired by TECAN readers/robots. It takes raw data files as
+input (placed in a folder, see help for raw data) and performs sorting and simple statistical
+processing steps.
+ 
+These steps include:
+- Unify raw data from one plate in a single sheet (step 1).
+- Substract blanks and calculate relative reporter signals (step 2).
+- Rename wells with prespecified sheets and concatenate all sheets if several plates have been
+  measured (step 3, optional). For the special requirements of this step, see help on files for
+  naming.
+
+After filling all required arguments, hit the 'Run' button to perform all steps.
+
+The 'Reset' button restores all options to their default states. All files from a previous
+analysis will REMAIN and not be removed by the 'Reset' button.
+
+To exit the program, hit the 'Cancel' button or choose "Help" > "Exit".
+
+IMPORTANT NOTE: This program is still work-in-progress! Errors may happen. Especially on if
+                anything appears on the black console which opened in the background, please
+                copy or screenshot the message and let me know! 
+                E mail: christian_rauch_1991 (at) gmx (dot) de

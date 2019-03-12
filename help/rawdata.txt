@@ -1,0 +1,4 @@
+Your raw data files should be in a seperated folder and (optimally, but not necessarily) carry
+a plate barcode. Do not rename .asc files obtained from the robot.
+
+All data sheets created during the run will be saved in your raw data folder.

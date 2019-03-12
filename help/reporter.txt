@@ -1,0 +1,6 @@
+You can specify the name of your reporter by replacing the default 'mvenus'.
+
+Any reporter name is valid and will appear in respective file names and tables. 
+
+White spaces in the reporter name field will be replaced by underscores ('_') for technical
+reasons.

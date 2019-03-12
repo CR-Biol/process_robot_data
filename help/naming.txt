@@ -1,0 +1,31 @@
+For automated naming of files, supply a set of correspond Excel generated CSV files (those are
+CSV files using the semicolon ';' as delimiter). The number of files have to be equal to the
+number of plates in your data set!
+
+The files should be placed in a seperate folder with NO OTHER FILES. 
+
+Naming should be in the same alphabetical order as your barcodes are. Good ways to name the 
+files are plate1.csv, plate2.csv, ...
+
+
+The required layout of each name file is as follows:
+
+	1;		2;		3;		...		12;
+A;	name1;		name2;		name3;		...		name12;
+B;	name13;		name14;		name15;		...		name24;
+C;	name25;		name26;		name27;		...		name36;
+...
+
+where nameX is the name you want your well to be named.
+
+You can give the same name to more than one well (e.g. if you have triplicats). 
+
+AVOID the following words in your sample names (capitalization matters!):
+    - Unnamed
+    - blank
+    - medium
+    - empty
+They will be filtered out from the final sorted file!
+
+
+EXAMPLE FILES and folder structure can be found in the testsets.
