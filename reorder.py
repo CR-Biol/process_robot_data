@@ -8,21 +8,19 @@ from tkinter.filedialog import askdirectory, askopenfilename
 import constants
 
 # Initialize logger.
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG) # DEBUG, INFO, WARNING, ERROR, CRITICAL
-formatter = constants.LOG_FORMATTER
-if not os.path.exists("logs"):
-    os.makedirs("logs")
-log_file_handler = logging.FileHandler(os.path.join("logs", "reorder.log"))
-log_file_handler.setFormatter(formatter)
-logger.addHandler(log_file_handler)
+logger = constants.setup_logger(
+    log_file_name = __name__ + ".log",
+    log_level = logging.DEBUG,
+    logger_name = __name__
+    )
+
 
 
 class ReorderForSinglePointAnalysis:
     def __init__(self, other, parent, *args, **kwargs):
         self.parent = parent
         self.frame = tk.Frame(parent)
-        other.nb.add(self.frame, text="Re-order")
+        other.nb.add(self.frame, text = "Re-order")
 
         self.background_keyword = "only"
 

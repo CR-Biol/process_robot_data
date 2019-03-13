@@ -9,14 +9,11 @@ import constants
 
 
 # Initialize logger.
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG) # DEBUG, INFO, WARNING, ERROR, CRITICAL
-formatter = constants.LOG_FORMATTER
-if not os.path.exists("logs"):
-    os.makedirs("logs")
-log_file_handler = logging.FileHandler(os.path.join("logs", "deconvolution.log"))
-log_file_handler.setFormatter(formatter)
-logger.addHandler(log_file_handler)
+logger = constants.setup_logger(
+    log_file_name = __name__ + ".log",
+    log_level = logging.DEBUG,
+    logger_name = __name__
+    )
 
 
 

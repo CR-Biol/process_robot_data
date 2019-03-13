@@ -2,10 +2,8 @@
 # CONSTANT VARIABLES
 #==============================================================================
 
+import os
 import logging
-
-# Formatter of loggers used in all modules.
-LOG_FORMATTER = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s:%(message)s")
 
 # Common seperator for output files. ";" makes CSV files readible for German version of Excel.
 SEP = ";"
@@ -57,3 +55,16 @@ class LabelWindow:
 
     def close(self):
         self.window.destroy()
+
+
+def setup_logger(log_file_name, log_level, logger_name):
+    """Returns a logger with default setup callable for each module."""
+    if not os.path.exists("logs"):
+        os.makedirs("logs")
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(log_level) # DEBUG, INFO, WARNING, ERROR, CRITICAL
+    formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s:%(message)s")
+    log_file_handler = logging.FileHandler(os.path.join("logs", log_file_name))
+    log_file_handler.setFormatter(formatter)
+    logger.addHandler(log_file_handler)
+    return logger

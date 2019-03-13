@@ -5,32 +5,17 @@ Graphical version of data procession from TECAN readers.
 Christian Rauch. Marburg.
 """
 
-import os
-import logging
-import constants
 
 
 __version__ = "alpha_0.9.2"
 __author__ = "Christian Rauch"
 
 
-# Initialize logger.
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG) # DEBUG, INFO, WARNING, ERROR, CRITICAL
-formatter = constants.LOG_FORMATTER
-if not os.path.exists("logs"):
-    os.makedirs("logs")
-log_file_handler = logging.FileHandler(os.path.join("logs", "main.log"))
-log_file_handler.setFormatter(formatter)
-logger.addHandler(log_file_handler)
-
-
-
-
 if __name__ == "__main__":
     print("Starting Robot Data Analysis Software version", __version__, "\n")
     print("Loading Python internal modules...")
     import os
+    import logging
     from statistics import mean, stdev
     print("\tDone.\n")
     print("Loading Graphical Interface...")
@@ -40,11 +25,22 @@ if __name__ == "__main__":
     from PIL import ImageTk, Image
     print("\tDone.\n")
     print("Loading additional software packages...")
+    import constants
     import raw_data
     import reorder
     import deconvolution
-    import constants
     print("\tDone.\n")
+else:
+    raise ImportError(__name__ + " must be called to start the application.".upper())
+
+
+# Initialize logger.
+logger = constants.setup_logger(
+    log_file_name = "main.log",
+    log_level = logging.DEBUG,
+    logger_name = __name__
+    )
+
 
 
 class MainApplication(tk.Frame):

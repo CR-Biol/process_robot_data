@@ -13,15 +13,12 @@ import blank_and_name_handling
 import quality
 
 # Initialize logger.
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG) # DEBUG, INFO, WARNING, ERROR, CRITICAL
-formatter = constants.LOG_FORMATTER
-if not os.path.exists("logs"):
-    os.makedirs("logs")
-log_file_handler = logging.FileHandler(os.path.join("logs", "raw_data.log"))
-log_file_handler.setFormatter(formatter)
-logger.addHandler(log_file_handler)
-
+# Initialize logger.
+logger = constants.setup_logger(
+    log_file_name = "raw_data.log",
+    log_level = logging.DEBUG,
+    logger_name = __name__
+    )
 
 def read_raw_data(raw_data_dir, reporter_name):
     path_to_file_dir = raw_data_dir
