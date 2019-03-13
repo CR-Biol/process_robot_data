@@ -26,8 +26,9 @@ logger.addHandler(log_file_handler)
 def read_raw_data(reporter_name, appendix="_results.txt"):
     BARCODE = "THIS-IS-A-GENERIC-PLACEHOLDER-FOR-ANY-BARCODE-IN-DATA-FILES" 
     written_barcodes = [] # User feedback on GUI; function return value.
-    data_files = [file for file in os.listdir() if (".xls" in file) and
-                                                   ("P4" in file)]
+    data_files = [file for file in os.listdir() 
+                  if (".xls" in file) and ("P4" in file)
+                  ]
     cyc_min, cyc_max = float("inf"), -float("inf") # Initializing variables for measurement cycles
     first_iteration = True
 
@@ -39,15 +40,15 @@ def read_raw_data(reporter_name, appendix="_results.txt"):
         # Iterating through all data files to gain info about barcode, basic
         #  file name (which can be different between runs), and maximal
         #  measurement cycle.
-        barcode = data_file.split(sep="_")[0].replace("BC", "")
+        barcode = data_file.split(sep = "_")[0].replace("BC", "")
         if not barcode in written_barcodes:
             written_barcodes.append(barcode)
 
         if first_iteration:
-            basic_file_name = "_".join(data_file.replace(barcode, BARCODE).split(sep="_")[:-1])
+            basic_file_name = "_".join(data_file.replace(barcode, BARCODE).split(sep = "_")[:-1])
             first_iteration = False
 
-        cyc_current = int(data_file.split(sep="_")[-1].split(sep=".")[0])
+        cyc_current = int(data_file.split(sep="_")[-1].split(sep = ".")[0])
         if cyc_current < cyc_min:
             cyc_min = cyc_current
         elif cyc_current > cyc_max:
@@ -56,9 +57,11 @@ def read_raw_data(reporter_name, appendix="_results.txt"):
     for barcode in written_barcodes:
         od = "OD600\n" + constants.header
         fu = reporter_name + "\n" + constants.header
-        for cyc_num in range(cyc_min, cyc_max+1):
-            current_file = basic_file_name.replace(BARCODE, barcode) + \
-                                                    "_{}.xls".format(cyc_num)
+        for cyc_num in range(cyc_min, cyc_max + 1):
+            current_file = "_".join([
+                basic_file_name.replace(BARCODE, barcode), #Replace dummy with actual barcode
+                "{}.xls".format(cyc_num)
+                ])
             wb = xls_to_xlsx_conversion(current_file)
             ws = wb.active
             curr_time = ws["H2"].value # Time info is stored as a float representing days since 1900.
@@ -96,7 +99,8 @@ def read_raw_data(reporter_name, appendix="_results.txt"):
 def xls_to_xlsx_conversion(file):
     """Converts .xls to .xlsx files.
     Function taken with minor adjustments from GitHub user malexandre,
-    https://gist.github.com/malexandre/730223fc089f70c65a7d"""
+    https://gist.github.com/malexandre/730223fc089f70c65a7d
+    """
     xlsBook = xlrd.open_workbook(filename=file)
     workbook = openpyxlWorkbook()
 
@@ -107,5 +111,5 @@ def xls_to_xlsx_conversion(file):
 
         for row in range(0, xlsSheet.nrows):
             for col in range(0, xlsSheet.ncols):
-                sheet.cell(row=row + 1, column=col + 1).value = xlsSheet.cell_value(row, col)
+                sheet.cell(row = row + 1, column=col + 1).value = xlsSheet.cell_value(row, col)
     return workbook

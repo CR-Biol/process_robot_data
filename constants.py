@@ -4,8 +4,10 @@
 
 import logging
 
+# Formatter of loggers used in all modules.
 LOG_FORMATTER = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s:%(message)s")
 
+# Common seperator for output files. ";" makes CSV files readible for German version of Excel.
 SEP = ";"
 
 col_names = ['cycle', 'time', 'temp', 'A1', 'A2', 'A3', 'A4',
@@ -38,3 +40,20 @@ header = "Cycle\tTime [min]\tTemp. [deg. C]\tA1\tA2\tA3\tA4\tA5\tA6\tA7\tA8\tA9\
          \tD10\tD11\tD12\tE1\tE2\tE3\tE4\tE5\tE6\tE7\tE8\tE9\tE10\tE11\tE12\tF1\tF2\
          \tF3\tF4\tF5\tF6\tF7\tF8\tF9\tF10\tF11\tF12\tG1\tG2\tG3\tG4\tG5\tG6\tG7\tG8\
          \tG9\tG10\tG11\tG12\tH1\tH2\tH3\tH4\tH5\tH6\tH7\tH8\tH9\tH10\tH11\tH12\n"
+
+
+class LabelWindow:
+    """Simple pop-up widget displaying a message.
+    """
+    def __init__(self, parent, message, title=None):
+        self.parent = parent
+        self.window = tk.Toplevel(self.parent)
+        if title is not None:
+            self.window.title(title)
+        help_text = tk.Label(self.window, text=message, justify=tk.LEFT)
+        ok_button = tk.Button(self.window, text="OK", command=self.close)
+        help_text.pack(padx=5, pady=5)
+        ok_button.pack(padx=5, pady=5)
+
+    def close(self):
+        self.window.destroy()

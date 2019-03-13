@@ -82,7 +82,7 @@ def get_wrappers(path_to_file, blank_wells, use_fixed_od_blank=False):
         for line in file:
             if seen_cycle:
                 try:
-                    curr_cycle_num = int(line.split(sep="\t")[0])
+                    curr_cycle_num = int(line.split(sep = "\t")[0])
                     total_cycle_number += 1
                 except ValueError:
                     first_od = 2 # MAGIC NUMBER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -121,16 +121,17 @@ def get_wrappers(path_to_file, blank_wells, use_fixed_od_blank=False):
         all_blanks_fu += list(wrapper_fu[well])
 
     # Mean over all blank values
-    blank_mean_od = sum(all_blanks_od) / float(len(all_blanks_od))
-    blank_mean_fu = sum(all_blanks_fu) / float(len(all_blanks_fu))
+    blank_mean_od = mean(all_blanks_od)
+    blank_mean_fu = mean(all_blanks_fu)
 
     if use_fixed_od_blank:
         # Value given by experience. Use this option only for testing or if there
         #  is a strong reason behind not using measured blanks!!
         blank_mean_od = 0.039
 
-    # Mapping function needed to catch ZeroDivisionErrors.
+    
     def relative(od_val, fu_val):
+        """Mapping function needed to catch ZeroDivisionErrors."""
         try:
             return fu_val / od_val
         except ZeroDivisionError:
@@ -146,17 +147,21 @@ def get_wrappers(path_to_file, blank_wells, use_fixed_od_blank=False):
     for data_col in constants.data_names:
         # Substracting mean blank from all values (including the blank itself).
         wrapper_od[data_col] = [val for val in map(
-                             lambda x: x - blank_mean_od, wrapper_od[data_col])]
+            lambda x: x - blank_mean_od, 
+            wrapper_od[data_col]
+            )]
         wrapper_fu[data_col] = [val for val in map(
-                             lambda x: x - blank_mean_fu, wrapper_fu[data_col])]
+            lambda x: x - blank_mean_fu, 
+            wrapper_fu[data_col]
+            )]
         wrapper_od[data_col] = [item for item in cap_negative_values_to_zero(wrapper_od[data_col])]
         wrapper_fu[data_col] = [item for item in cap_negative_values_to_zero(wrapper_fu[data_col])]
         # Calculating relative reporter units
         wrapper_fu[data_col] = [val for val in map(
-                                relative,
-                                wrapper_od[data_col],
-                                wrapper_fu[data_col]
-                                )]
+            relative,
+            wrapper_od[data_col],
+            wrapper_fu[data_col]
+            )]
     return wrapper_od, wrapper_fu
 
 
@@ -196,7 +201,7 @@ def baptize(data_file, name_csv):
     with open(name_csv) as names:
         # Reads name_csv to generate label_dict
         for line in names.readlines():
-            items = line.split(sep=constants.SEP)
+            items = line.split(sep = constants.SEP)
             if items[0] in "ABCDEFGH" and items[0] != "": # '"" in string' is always 'True'
                 starting_letter = items[0]
                 for i in range(1, 12+1):
@@ -206,7 +211,7 @@ def baptize(data_file, name_csv):
 
     with open(data_file, "r") as data:
         for line in data.readlines():
-            for item in line.split(sep=constants.SEP):
+            for item in line.split(sep = constants.SEP):
                 if item in label_dict:
                     to_write += label_dict[item]
                 else:
@@ -223,11 +228,11 @@ def merge(csv_file_list, outfile="merge_default_name.csv", write=False):
     pandas dataframe containing all data. If write is set to True, writes
     Excel readible CSV file as outfile.
     """
-    frames = [pd.read_csv(f, sep=constants.SEP) for f in csv_file_list]
+    frames = [pd.read_csv(f, sep = constants.SEP) for f in csv_file_list]
     result = pd.concat(frames, axis=1)
     result = sort_df(result)
     if write:
-        result.to_csv(outfile, sep=constants.SEP)
+        result.to_csv(outfile, sep = constants.SEP)
     return result
 
 
@@ -252,13 +257,15 @@ def sort_df(dataframe_or_csv_file):
     This function is supposed to called upon a baptized DataFrame.
     """
     # Get primary_df from input: Either from a DataFrame directly or a path string.
-    if type(dataframe_or_csv_file) == type(pd.DataFrame()):
+    if isinstance(dataframe_or_csv_file, pd.DataFrame):
         primary_df = dataframe_or_csv_file
-    elif type(dataframe_or_csv_file) == type("dummy"):
-        primary_df = pd.read_csv(dataframe_or_csv_file, delimiter=constants.SEP)
+    elif isinstance(dataframe_of_csv_file, str):
+        primary_df = pd.read_csv(dataframe_or_csv_file, delimiter = constants.SEP)
     else:
-        raise ValueError("".join(["Input for dataframe_or_csv_file must be a ",
-                         "DataFrame or path to a CSV file"]))
+        raise ValueError("".join([
+            "Input for dataframe_or_csv_file must be a ",
+            "DataFrame or path to a CSV file"
+            ]))
 
     # Define what entries to remove from the CSV file and compiling respective RE
     discard_from_df = ["Unnamed", "medium", "blank"]#, "empty"]
@@ -271,7 +278,8 @@ def sort_df(dataframe_or_csv_file):
     # CREATE SORTER LIST
     # Remove unwanted entries and duplications from primary_df
     to_keep = [entry for entry in primary_df
-                               if not match_iterable(entry, keep_patterns)]
+              if not match_iterable(entry, keep_patterns)
+              ]
     # Sort indeces in to_keep
     to_keep.sort()
 
