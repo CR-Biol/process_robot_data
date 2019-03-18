@@ -54,12 +54,9 @@ class MainApplication(tk.Frame):
         self.nb = ttk.Notebook(parent)
         self.nb.grid()
         raw_data_widget = raw_data.RawDataProcessing(self, self.parent)
-
-        # BOTH THE REORDER AS WELL AS THE DECONVOLUTION WIDGET ARE BUGGY ATM. 
-
-        # reorder_widget = reorder.ReorderForSinglePointAnalysis(self, self.parent)
+        reorder_widget = reorder.ReorderForSinglePointAnalysis(self, self.parent)
         # deconvolution_widget = deconvolution.IntegrateDeconvolutionAlgorithm(self, self.parent)
-
+       
 
     def end_app(self):
         self.parent.destroy()
@@ -91,7 +88,7 @@ class TopBar:
         with open(os.path.join(path_to_files, about)) as file:
             for line in file:
                 msg += line
-        help_window = LabelWindow(self.parent, msg)
+        help_window = constants.LabelWindow(self.parent, msg)
 
 
 
