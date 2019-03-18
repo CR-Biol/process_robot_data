@@ -125,7 +125,7 @@ def get_wrappers(path_to_file, blank_wells, use_fixed_od_blank=False):
     if use_fixed_od_blank:
         # Value given by experience. Use this option only for testing or if there
         #  is a strong reason behind not using measured blanks!!
-        blank_mean_od = 0.039
+        blank_mean_od = constants.FIXED_OD_BLANK_VALUE
 
     
     def relative(od_val, fu_val):
@@ -257,7 +257,7 @@ def sort_df(dataframe_or_csv_file):
     # Get primary_df from input: Either from a DataFrame directly or a path string.
     if isinstance(dataframe_or_csv_file, pd.DataFrame):
         primary_df = dataframe_or_csv_file
-    elif isinstance(dataframe_of_csv_file, str):
+    elif isinstance(dataframe_or_csv_file, str):
         primary_df = pd.read_csv(dataframe_or_csv_file, delimiter = constants.SEP)
     else:
         raise ValueError("".join([

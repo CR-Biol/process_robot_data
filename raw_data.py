@@ -13,7 +13,6 @@ import blank_and_name_handling
 import quality
 
 # Initialize logger.
-# Initialize logger.
 logger = constants.setup_logger(
     log_file_name = "raw_data.log",
     log_level = logging.DEBUG,
@@ -36,7 +35,7 @@ def read_raw_data(raw_data_dir, reporter_name):
             return get_raw_data_hamilton.read_raw_data(reporter_name)
 
 
-class RawDataProcessing:
+class RawDataProcessing():
     def __init__(self, other, parent, *args, **kwargs):
         self.parent = parent
         self.frame = tk.Frame(parent)
@@ -141,6 +140,29 @@ class RawDataProcessing:
         self.label_step1 = tk.Label(self.frame, textvariable = self.first_step_complete)
         self.label_step2 = tk.Label(self.frame, textvariable = self.second_step_complete)
         self.label_step3 = tk.Label(self.frame, textvariable = self.third_step_complete)
+        # Defining tooltips
+        
+        constants.ToolTip(
+            self.raw_data_button, 
+            "Set your raw data directory."
+            )
+        constants.ToolTip(
+            self.names_button, 
+            "Set your name file directory.\nThe directory may only contain name files in" 
+            + "CSV format (see Help/Files for Naming)"
+            )
+        constants.ToolTip(
+            self.exclude_reporter_blank_button,
+            "Do not use blank correction on raw reporter values."
+            + "\nThis option is NOT recommended when using fluorescence!"
+            )
+        constants.ToolTip(
+            self.fixed_blank_button,
+            "Use a fixed value ({}) for OD blank correction.".format(constants.FIXED_OD_BLANK_VALUE)
+            + "\nThis option is intended for use when analysing imperfect runs."
+            + "\nNote that the assumed value of the OD blank is based on experience."
+            + "\n\nThis option is generally NOT RECOMMENDED."
+            )
         
         # Positioning widgets
         self.intro_label.grid(row = 0, column = 0, rowspan = 3, columnspan = 5)

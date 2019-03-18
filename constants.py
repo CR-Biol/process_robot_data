@@ -4,9 +4,12 @@
 
 import os
 import logging
+import tkinter as tk
 
 # Common seperator for output files. ";" makes CSV files readible for German version of Excel.
 SEP = ";"
+
+FIXED_OD_BLANK_VALUE = 0.039
 
 col_names = ['cycle', 'time', 'temp', 'A1', 'A2', 'A3', 'A4',
                 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12', 'B1', 'B2',
@@ -55,6 +58,43 @@ class LabelWindow:
 
     def close(self):
         self.window.destroy()
+
+
+class ToolTip(object):
+    """
+    Create a tooltip for a given widget.
+    Taken from https://www.daniweb.com/programming/software-development/code/484591/a-tooltip-class-for-tkinter
+    (2019/03/13) with slight modifications.
+    """
+    def __init__(self, widget, text='widget info'):
+        self.widget = widget
+        self.text = text
+        self.widget.bind("<Enter>", self.enter)
+        self.widget.bind("<Leave>", self.close)
+
+    def enter(self, event=None):
+        x = y = 0
+        x, y, cx, cy = self.widget.bbox("insert")
+        x += self.widget.winfo_rootx() + 25
+        y += self.widget.winfo_rooty() + 20
+        # creates a toplevel window
+        self.tw = tk.Toplevel(self.widget)
+        # Leaves only the label and removes the app window
+        self.tw.wm_overrideredirect(True)
+        self.tw.wm_geometry("+%d+%d" % (x, y))
+        label = tk.Label(
+            self.tw, 
+            text=self.text, 
+            justify = 'left',
+            relief = 'solid', 
+            borderwidth = 1,
+            background = "white"
+            )
+        label.pack(ipadx=1)
+
+    def close(self, event=None):
+        if self.tw:
+            self.tw.destroy()
 
 
 def setup_logger(log_file_name, log_level, logger_name):
