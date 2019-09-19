@@ -36,7 +36,7 @@ def time_from_excel(cell_value):
     return datetime.datetime(year, month, day, hour, min, second)
 
 
-def read_raw_data_excel(appendix="_results.txt", reporter_name="this-is-a-dummy-variable"):
+def read_raw_data(appendix="_results.txt", reporter_name="this-is-a-dummy-variable"):
     """Reads raw data from excel file.
     Assumes only ONE raw data file containing several data sheets. Those sheets
     should be named "SheetX" where X is the measurement cycle.

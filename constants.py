@@ -6,10 +6,21 @@ import os
 import logging
 import tkinter as tk
 
-# Common seperator for output files. ";" makes CSV files readible for German version of Excel.
+# Common seperator for output files. 
+#   ";" makes CSV files readible for German version of Excel.
 SEP = ";"
 
+# Assumed value to use when fixed OD correction is chosen.
 FIXED_OD_BLANK_VALUE = 0.039
+
+# Font used in the GUI.
+FONT_FAMILY = "Nirmala UI"
+
+# Sizes must be integers >= 4
+FONT_SIZE = 10 
+BTN_WIDTH_NORMAL = 11
+BTN_WIDTH_BIG = 30
+BTN_WIDTH_SMALL = 7
 
 col_names = ['cycle', 'time', 'temp', 'A1', 'A2', 'A3', 'A4',
                 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12', 'B1', 'B2',
@@ -53,8 +64,15 @@ class LabelWindow:
             self.window.title(title)
         help_text = tk.Label(self.window, text=message, justify=tk.LEFT)
         ok_button = tk.Button(self.window, text="OK", command=self.close)
-        help_text.pack(padx=5, pady=5)
-        ok_button.pack(padx=5, pady=5)
+        help_text.pack(padx = 5, pady = 5, ipadx = 5, ipady = 15)
+        ok_button.configure(
+            width = 5,
+            font = (FONT_FAMILY, FONT_SIZE, "bold"),
+            cursor = "hand2",
+            background = "#bbb",
+            activebackground = "#4c4c4c"
+        )
+        ok_button.pack(padx = 5, pady = 5)
 
     def close(self):
         self.window.destroy()
@@ -72,9 +90,11 @@ class ToolTip(object):
         self.widget.bind("<Enter>", self.enter)
         self.widget.bind("<Leave>", self.close)
 
+
     def enter(self, event=None):
         x = y = 0
-        x, y, cx, cy = self.widget.bbox("insert")
+        # x, y, cx, cy = self.widget.bbox("insert")
+        x, y, _, _ = self.widget.bbox("insert")
         x += self.widget.winfo_rootx() + 25
         y += self.widget.winfo_rooty() + 20
         # creates a toplevel window
@@ -108,3 +128,15 @@ def setup_logger(log_file_name, log_level, logger_name):
     log_file_handler.setFormatter(formatter)
     logger.addHandler(log_file_handler)
     return logger
+
+
+def remove_double_quotest_from_file(file):
+    """Takes a file handle as input.
+    Overrides the files content with all double quotation marks (' " ') removed.
+    """
+    clean_string = ""
+    with open(file) as infile:
+        for line in infile:
+            clean_string += line.replace('"', '')
+    with open(file, "w") as newfile:
+        newfile.write(clean_string)

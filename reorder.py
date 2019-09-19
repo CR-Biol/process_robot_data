@@ -32,10 +32,11 @@ logger = constants.setup_logger(
 
 
 class ReorderForSinglePointAnalysis:
-    def __init__(self, other, parent, *args, **kwargs):
+    def __init__(self, parent, grand_parent, *args, **kwargs):
+        self.grand_parent = grand_parent
+        self.frame = tk.Frame(grand_parent)
         self.parent = parent
-        self.frame = tk.Frame(parent)
-        other.nb.add(self.frame, text = "Re-order")
+        self.parent.nb.add(self.frame, text = "Re-order")
 
         welcome_label = tk.Label(
             self.frame, 
@@ -47,6 +48,8 @@ class ReorderForSinglePointAnalysis:
 
         # What I want in future:
         # Automatically format output file with specified time point.
+
+        self.remove_whitespaces_from_input_file = self.parent.remove_quotation_marks.get()
 
         self.num_replicates_value = tk.IntVar()
         self.num_replicates_value.set(3)
@@ -105,7 +108,7 @@ class ReorderForSinglePointAnalysis:
         self.exit_button = tk.Button(
             self.subframe, 
             text = "Close", 
-            command = other.end_app
+            command = parent.end_app
             )
 
         self.user_response = tk.StringVar()
@@ -137,6 +140,7 @@ class ReorderForSinglePointAnalysis:
         self.num_replicates_label.grid(row = 1, column = 0, sticky = "E", padx = 5, pady = 5)
 
         self.input_file_label.grid(row = 2, column = 0, sticky = "E", padx = 5, pady = 5)
+        self.configure_btn(self.get_file_button, btn_width=constants.BTN_WIDTH_SMALL)
         self.get_file_button.grid(row = 2, column = 1, sticky = "W", padx = 5, pady = 5)
         self.background_subtraction_checkbutton.grid(row = 3, column = 0, sticky = "E")
         self.change_background_keyword_label.grid(row = 4, column = 0, sticky = "E", padx = 5, pady = 5)
@@ -145,13 +149,30 @@ class ReorderForSinglePointAnalysis:
         self.response_label.grid(row=5, columnspan=2, padx=5, pady=15)
 
         self.subframe.grid(row=11, columnspan=2)
+        self.configure_btn(self.run_button)
         self.run_button.grid(row=0, column=0, padx=5)
+        self.configure_btn(self.reset_button)
         self.reset_button.grid(row=0, column=1, padx=5)
+        self.configure_btn(self.exit_button)
         self.exit_button.grid(row=0, column=2, padx=5)
+
+
+    def configure_btn(self, btn_widget, btn_width=constants.BTN_WIDTH_NORMAL):
+        btn_widget.configure(
+            width = btn_width,
+            font = (constants.FONT_FAMILY, constants.FONT_SIZE, "bold"),
+            cursor = "hand2",
+            background = "#bbb",
+            activebackground = "#4c4c4c"
+        )
 
 
     def get_file(self):
         file_name = askopenfilename()
+
+        if self.remove_whitespaces_from_input_file:
+            constants.remove_double_quotest_from_file(file_name)
+
         self.input_file_name.set(os.path.basename(file_name))
         self.input_file_path.set(file_name)
 
@@ -196,7 +217,7 @@ class ReorderForSinglePointAnalysis:
                 for idx, value in enumerate(second_line.split(sep = constants.SEP)):
                     construct, condition = idx_to_name[idx]
                     if self.background_keyword.get() in construct:
-                        logger.debug("Added {} to background constructs.")
+                        logger.debug(f"Added {construct} to background constructs.")
                         all_background.append(float(value.replace(",", ".")))
                 bg_mean = mean(all_background)
                 bg_stdev = stdev(all_background)
@@ -220,7 +241,7 @@ class ReorderForSinglePointAnalysis:
                 _length = len(data_wrapper[condition])
             else:
                 if not _length == len(data_wrapper[condition]):
-                    error_msg = "The condition {0} contained {1} constructs, but others contain {2}".format(
+                    error_msg = "The condition {0} contained {1} constructs, but parents contain {2}".format(
                         condition,
                         len(data_wrapper[condition]),
                         _length
@@ -235,7 +256,7 @@ class ReorderForSinglePointAnalysis:
         # Assemble Headline. CURRENTLY (10/2018) MAY MISS THE EMPTY VECTOR CONTROL
         header = constants.SEP # Initialize header line with empty cell
         for any_condition in data_wrapper:
-            # This loop must be executed only once to write a correct header.
+            # This loop must be executed exactly once to write a correct header.
             for construct in data_wrapper[any_condition]:
                 header += construct + num_replicates * constants.SEP # Creates num_replicate cells in header.s
             break

@@ -103,9 +103,7 @@ def get_wrappers(path_to_file, blank_wells, use_fixed_od_blank=False):
         for line in file:
             if seen_cycle:
                 try:
-                    # curr_cycle_num assignment is supposed to fail after reading
-                    # all OD data in the first "Stephan's" data sheet.
-                    curr_cycle_num = int(line.split(sep="\t")[0])
+                    # curr_cycle_num = int(line.split(sep="\t")[0])
                     total_cycle_number += 1
                 except ValueError:
                     first_od = 2  # MAGIC NUMBER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -224,8 +222,10 @@ def baptize(data_file, name_csv, remove_quatation_marks_from_namefile):
     out_file = "".join(
         [os.path.basename(data_file).split(sep=".")[0], "_bap.csv"])
 
+
     if remove_quatation_marks_from_namefile:
-        constants.remove_double_quotest_from_file(name_csv)
+        remove_double_quotest_from_file
+
 
     with open(name_csv) as names:
         # Reads name_csv to generate label_dict

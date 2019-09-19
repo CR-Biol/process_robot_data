@@ -29,17 +29,18 @@ def read_raw_data(raw_data_dir, reporter_name):
             return get_raw_data_asc.read_raw_data(reporter_name)
         elif ".xlsx" in file:
             logger.info("Found xlsx files. Expecting data from TECAN reader in Excel format.")
-            return get_raw_data_excel.read_raw_data(reporter_name)
+            return get_raw_data_excel.read_raw_data(reporter_name = reporter_name)
         elif ".xls" in file:
             logger.info("Found xls files. Expecting data from Hamilton robot.")
             return get_raw_data_hamilton.read_raw_data(reporter_name)
 
 
 class RawDataProcessing():
-    def __init__(self, other, parent, *args, **kwargs):
+    def __init__(self, parent, grand_parant, *args, **kwargs):
         self.parent = parent
-        self.frame = tk.Frame(parent)
-        other.nb.add(self.frame, text="Raw Data")
+        self.grand_parant = grand_parant
+        self.frame = tk.Frame(grand_parant)
+        self.parent.nb.add(self.frame, text="Raw Data")
 
         self.name_files_are_csv = True
 
@@ -69,8 +70,6 @@ class RawDataProcessing():
         self.second_step_complete = tk.StringVar()
         self.third_step_complete = tk.StringVar()
 
-
-        # Welcome Label Text
         self.intro_label = tk.Label(
             self.frame, text = "Welcome to One Click to Tabular Format." \
             + "\nPlease chose configuration as appropriate." \
@@ -103,7 +102,7 @@ class RawDataProcessing():
         self.exit_button = tk.Button(
             self.subframe,
             text = "Close",
-            command = other.end_app
+            command = self.parent.end_app
             )
         self.reporter_entry = tk.Entry(self.frame, textvariable = self.reporter_name)
         self.reporter_label = tk.Label(self.frame, text = "Reporter Name:")
@@ -140,16 +139,16 @@ class RawDataProcessing():
         self.label_step1 = tk.Label(self.frame, textvariable = self.first_step_complete)
         self.label_step2 = tk.Label(self.frame, textvariable = self.second_step_complete)
         self.label_step3 = tk.Label(self.frame, textvariable = self.third_step_complete)
-        # Defining tooltips
         
+        # Defining tooltips
         constants.ToolTip(
             self.raw_data_button, 
             "Set your raw data directory."
             )
         constants.ToolTip(
             self.names_button, 
-            "Set your name file directory.\nThe directory may only contain name files in" 
-            + "CSV format (see Help/Files for Naming)"
+            "Set your name file directory.\nThe directory may only contain " 
+            + "name files in CSV format (see Help/Files for Naming)"
             )
         constants.ToolTip(
             self.exclude_reporter_blank_button,
@@ -158,38 +157,55 @@ class RawDataProcessing():
             )
         constants.ToolTip(
             self.fixed_blank_button,
-            "Use a fixed value ({}) for OD blank correction.".format(constants.FIXED_OD_BLANK_VALUE)
+            f"Use a fixed value ({constants.FIXED_OD_BLANK_VALUE}) for OD blank correction."
             + "\nThis option is intended for use when analysing imperfect runs."
             + "\nNote that the assumed value of the OD blank is based on experience."
             + "\n\nThis option is generally NOT RECOMMENDED."
             )
         
         # Positioning widgets
-        self.intro_label.grid(row = 0, column = 0, rowspan = 3, columnspan = 5)
+        self.intro_label.grid(row = 0, column = 0, rowspan = 3, columnspan = 5,
+                              ipady = 10, ipadx = 5
+                              )
 
         self.dummy_label.grid(row=3)
 
         self.reporter_label.grid(row=4, column=0, stick=tk.E)
         self.reporter_entry.grid(row=4, column=1, columnspan=2)
-        self.raw_data_button.grid(row=4, column=3, padx=5)
+        self.configure_btn(self.raw_data_button, btn_width = constants.BTN_WIDTH_BIG)
+        self.raw_data_button.grid(row=4, column=3, padx=5, pady=10)
         self.has_datadir_check.grid(row=4, column=4, sticky=tk.W)
 
         self.blank_label.grid(row=5, column=0, stick=tk.E)
         self.blank_entry.grid(row=5, column=1, columnspan=2)
+        self.configure_btn(self.names_button, btn_width = constants.BTN_WIDTH_BIG)
         self.names_button.grid(row=5, column=3, padx=5)
         self.has_namedir_check.grid(row=5, column=4, sticky=tk.W)
 
-        self.fixed_blank_button.grid(row=6, column=2, columnspan = 2, pady = 7, sticky = tk.W)
-        self.exclude_reporter_blank_button .grid(row = 7, column=2, columnspan = 2, pady = 5, sticky = tk.W)
+        self.fixed_blank_button.grid(row = 6, column = 2, columnspan = 2, pady = 7, sticky = tk.W)
+        self.exclude_reporter_blank_button .grid(row = 7, column  = 2, columnspan = 2, pady = 5, sticky = tk.W)
 
         self.label_step1.grid(row=8, columnspan=5)
         self.label_step2.grid(row=9, columnspan=5)
         self.label_step3.grid(row=10, columnspan=5)
 
         self.subframe.grid(row=11, columnspan=5)
+        self.configure_btn(self.run_button)
         self.run_button.grid(row=0, column=0, pady=5, padx=5)
+        self.configure_btn(self.reset_button)
         self.reset_button.grid(row=0, column=1, pady=5, padx=5)
+        self.configure_btn(self.exit_button)
         self.exit_button.grid(row=0, column=2, pady=5, padx=5)
+
+
+    def configure_btn(self, btn_widget, btn_width=constants.BTN_WIDTH_NORMAL):
+        btn_widget.configure(
+            width = btn_width,
+            font = (constants.FONT_FAMILY, constants.FONT_SIZE, "bold"),
+            cursor = "hand2",
+            background = "#bbb",
+            activebackground = "#4c4c4c"
+        )
 
 
     def set_dir(self, dir_var, corresponding_bool_var):
@@ -206,25 +222,25 @@ class RawDataProcessing():
         """Read Data. Corresponds to Stephan's original Perl script."""
         logger.info("Started reordering data into uniform TSV (Stephan's script.")
         self.written_barcodes = read_raw_data(self.raw_data_dir.get(), self.reporter_name.get())
-        if self.written_barcodes:
-            # Any barcodes have been returned by read_raw_data()
-            written_barcodes_as_str = ", ".join(self.written_barcodes)
-            logger.info("Written uniform TSV for barcodes {}".format(written_barcodes_as_str))
-            msg = "Successfully written barcodes for: {}".format(written_barcodes_as_str)
-            self.first_step_complete.set(msg)
-        else: # No barcodes have been returned by read_raw_data()
+        if not self.written_barcodes: 
             logger.error("Could not read barcodes in data files.")
             error_msg = "ERROR: DID NOT RETRIEVED ANY BARCODES. ANALYSIS ENDED."
             self.first_step_complete.set(error_msg)
             return False
+            
+        written_barcodes_as_str = ", ".join(self.written_barcodes)
+        logger.info("Written uniform TSV for barcodes {}".format(written_barcodes_as_str))
+        msg = "Successfully written barcodes for: {}".format(written_barcodes_as_str)
+        self.first_step_complete.set(msg)
         return True
 
 
     def step2(self):
         """Blank Correction."""
-        blanks = self.blank_wells.get()
-        blanks = blank_and_name_handling.process_well_input(blanks)
-        logger.info("Started blank correction using {} as blank(s).".format(blanks))
+        blanks = blank_and_name_handling.process_well_input(
+            self.blank_wells.get())
+        logger.info(
+            f"Started blank correction using {blanks} as blank(s).")
         raw_files = [file for file in os.listdir() if "results.txt" in file]
         has_written_blank_corrected_file = False
         for file in raw_files:
@@ -239,19 +255,19 @@ class RawDataProcessing():
                 )
             blank_and_name_handling.write_blank_corrected(
                 rru, 
-                file_basename + "_relative_{}_corrected.csv".format(self.reporter_name.get())
+                file_basename + f"_relative_{self.reporter_name.get()}_corrected.csv"
                 )
             if not has_written_blank_corrected_file:
                 has_written_blank_corrected_file = True
-        if has_written_blank_corrected_file:
-            logger.info("Sucessfully written blank corrected files.")
-            self.second_step_complete.set("All blank corrected files written.")
-        else:
+
+        if not has_written_blank_corrected_file:
             logger.error("Unable to write blank corrected files.")
             error_msg = "ERROR: NO BLANK CORRECTED FILES WERE WRITTEN." \
                 + "ANALYSIS ENDED."
             self.second_step_complete.set(error_msg)
             return False
+        logger.info("Sucessfully written blank corrected files.")
+        self.second_step_complete.set("All blank corrected files written.")
         return True
 
 
@@ -266,7 +282,7 @@ class RawDataProcessing():
         if (not temp == namefiles) and self.name_files_are_csv:
             logger.warning(
                 "Name files are not formatted as expected (CSVs with" 
-                + "{} as seperator).".format(constants.SEP)
+                + f"{constants.SEP} as seperator)."
                 + "Expecting TSV format, trying to resolve name files."
                 )
             self.name_files_are_csv = False
@@ -299,7 +315,12 @@ class RawDataProcessing():
             for file in corrected_files:
                 if barcode in file:
                     logger.debug("Baptized data for {}".format(barcode))
-                    blank_and_name_handling.baptize(file, barcode_to_file[barcode])
+                    blank_and_name_handling.baptize(
+                        data_file = file, 
+                        name_csv = barcode_to_file[barcode],
+                        remove_quatation_marks_from_namefile = \
+                        self.parent.remove_quotation_marks.get()
+                        )
 
         # Merge and Sort final output files
         od = [file for file in os.listdir() if "OD" in file and "bap" in file]
@@ -334,11 +355,13 @@ class RawDataProcessing():
         logger.debug("Started read raw data run.")
         first = self.step1()
         if not first:
+            logger.error("Could not finish raw data read-out (step 1).")
             return
         if " " in self.reporter_name.get(): # Resolve a bug originating from whitespaces.
             self.reporter_name.set(self.reporter_name.get().replace(" ", "_"))
         second = self.step2()
         if not second:
+            logger.error("Could not finish blank-correction (step 2).")
             return
 
         # This step is entirely optional. If no path to naming files is set, this
@@ -346,6 +369,7 @@ class RawDataProcessing():
         if not self.path_to_namefiles.get() == "not_defined":
             third = self.step3()
             if not third:
+                logger.error("Could not finish baptizing and merging files (step 3).")
                 return
         self.name_files_are_csv = True
         logger.debug("Finished read raw data run.")
