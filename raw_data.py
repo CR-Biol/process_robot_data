@@ -14,7 +14,6 @@ import quality
 
 # Initialize logger.
 logger = constants.setup_logger(
-    log_file_name = "raw_data.log",
     log_level = logging.DEBUG,
     logger_name = __name__
     )
@@ -248,7 +247,8 @@ class RawDataProcessing():
             od, rru = blank_and_name_handling.get_wrappers(
                 file, 
                 blanks, 
-                self.fixed_blank.get()
+                self.fixed_blank.get(),
+                self.exclude_reporter_blank.get()
                 )
             blank_and_name_handling.write_blank_corrected(
                 od,file_basename + "_OD_corrected.csv"
@@ -314,13 +314,13 @@ class RawDataProcessing():
         for barcode in barcode_to_file:
             for file in corrected_files:
                 if barcode in file:
-                    logger.debug("Baptized data for {}".format(barcode))
                     blank_and_name_handling.baptize(
                         data_file = file, 
                         name_csv = barcode_to_file[barcode],
                         remove_quatation_marks_from_namefile = \
                         self.parent.remove_quotation_marks.get()
                         )
+                    logger.debug("Baptized data for {}".format(barcode))
 
         # Merge and Sort final output files
         od = [file for file in os.listdir() if "OD" in file and "bap" in file]
@@ -358,6 +358,7 @@ class RawDataProcessing():
             logger.error("Could not finish raw data read-out (step 1).")
             return
         if " " in self.reporter_name.get(): # Resolve a bug originating from whitespaces.
+            logger.info(f"Removed whitespace from reporter name: {self.reporter_name.get()}")
             self.reporter_name.set(self.reporter_name.get().replace(" ", "_"))
         second = self.step2()
         if not second:
@@ -392,3 +393,5 @@ class RawDataProcessing():
         logger.debug("Reset internal information to default values.")
 
 
+if __name__ != "__main__":
+    print("\tInitialized raw data handling module.")

@@ -95,8 +95,8 @@ class ToolTip(object):
         x = y = 0
         # x, y, cx, cy = self.widget.bbox("insert")
         x, y, _, _ = self.widget.bbox("insert")
-        x += self.widget.winfo_rootx() + 25
-        y += self.widget.winfo_rooty() + 20
+        x += self.widget.winfo_rootx() + 10 #+ 25
+        y += self.widget.winfo_rooty() + 35 #+ 20
         # creates a toplevel window
         self.tw = tk.Toplevel(self.widget)
         # Leaves only the label and removes the app window
@@ -117,14 +117,14 @@ class ToolTip(object):
             self.tw.destroy()
 
 
-def setup_logger(log_file_name, log_level, logger_name):
+def setup_logger(log_level, logger_name):
     """Returns a logger with default setup callable for each module."""
     if not os.path.exists("logs"):
         os.makedirs("logs")
     logger = logging.getLogger(logger_name)
     logger.setLevel(log_level) # DEBUG, INFO, WARNING, ERROR, CRITICAL
     formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s:%(message)s")
-    log_file_handler = logging.FileHandler(os.path.join("logs", log_file_name))
+    log_file_handler = logging.FileHandler(os.path.join("logs", "OCUTaF.log"))
     log_file_handler.setFormatter(formatter)
     logger.addHandler(log_file_handler)
     return logger
@@ -140,3 +140,7 @@ def remove_double_quotest_from_file(file):
             clean_string += line.replace('"', '')
     with open(file, "w") as newfile:
         newfile.write(clean_string)
+
+
+if __name__ != "__main__":
+    print("\tInitialized constants and helper functions.")

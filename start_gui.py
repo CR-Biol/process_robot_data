@@ -6,7 +6,7 @@ Christian Rauch. Marburg.
 """
 
 
-__version__ = "0.9.2"
+__version__ = "0.9.4"
 __author__ = "Christian Rauch"
 
 
@@ -22,19 +22,18 @@ if __name__ == "__main__":
     import tkinter.font as tkFont
     from tkinter import ttk
     from tkinter.filedialog import askdirectory, askopenfilename
-    from PIL import ImageTk, Image
+    # from PIL import ImageTk, Image
     print("\tDone.\n")
     print("Loading additional software packages...")
     import constants
     import raw_data
     import reorder
-    import deconvolution
+    import dose_response
     print("\tDone.\n")
 
 
 # Initialize logger.
 logger = constants.setup_logger(
-    log_file_name="main.log",
     log_level=logging.DEBUG,
     logger_name=__name__
 )
@@ -55,6 +54,7 @@ class MainApplication(tk.Frame):
         # Register main widgets as notebook pages.
         raw_data.RawDataProcessing(self, self.parent)
         reorder.ReorderForSinglePointAnalysis(self, self.parent)
+        dose_response.DoseResponse(self, self.parent)
         # deconvolution.IntegrateDeconvolutionAlgorithm(self, self.parent)
 
         self.copyright = tk.Label(
@@ -62,11 +62,11 @@ class MainApplication(tk.Frame):
             text=f"Written by Christian Rauch, version {__version__}"
         )
         # Apply Styling
-        self.style_font()
-        self.make_small(self.copyright)
+        self.__style_fonts()
+        self.__make_small(self.copyright)
         self.copyright.grid(pady=(0, 10))
 
-    def style_font(self):
+    def __style_fonts(self):
         self.font_size = constants.FONT_SIZE
         self.font_family = constants.FONT_FAMILY
         default_font = tkFont.nametofont("TkDefaultFont")
@@ -75,7 +75,7 @@ class MainApplication(tk.Frame):
             family=self.font_family
         )
 
-    def make_small(self, widget):
+    def __make_small(self, widget):
         widget.configure(
             font=(
                 constants.FONT_FAMILY,
@@ -158,3 +158,4 @@ if __name__ == "__main__":
     logger.info("Started GUI session.")
     root.mainloop()
     logger.info("Ended GUI session.")
+

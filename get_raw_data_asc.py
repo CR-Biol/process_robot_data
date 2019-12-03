@@ -8,7 +8,6 @@ import constants
 
 # Initialize logger.
 logger = constants.setup_logger(
-    log_file_name = __name__ + ".log",
     log_level = logging.DEBUG,
     logger_name = __name__
     )

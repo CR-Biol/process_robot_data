@@ -14,7 +14,6 @@ import constants
 
 # Initialize logger.
 logger = constants.setup_logger(
-    log_file_name=__name__ + ".log",
     log_level=logging.DEBUG,
     logger_name=__name__
 )
@@ -84,7 +83,8 @@ def is_valid_well_input(well_input_list):
     return True
 
 
-def get_wrappers(path_to_file, blank_wells, use_fixed_od_blank=False):
+def get_wrappers(path_to_file, blank_wells, use_fixed_od_blank=False,
+                 exclude_blank_correction_for_reporter=False):
     """Takes a preprocessed raw data file handler and a list of wells containing
     blank control as input. Returns a tuple containing wrapper dictionaries for
     OD and relative reporter units.
@@ -103,9 +103,9 @@ def get_wrappers(path_to_file, blank_wells, use_fixed_od_blank=False):
         for line in file:
             if seen_cycle:
                 try:
-                    # curr_cycle_num assignment is supposed to fail after reading
+                    # dummy_curr_cycle_num assignment is supposed to fail after reading
                     # all OD data in the first "Stephan's" data sheet.
-                    curr_cycle_num = int(line.split(sep="\t")[0])
+                    dummy_curr_cycle_num = int(line.split(sep="\t")[0])
                     total_cycle_number += 1
                 except ValueError:
                     first_od = 2  # MAGIC NUMBER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -151,7 +151,18 @@ def get_wrappers(path_to_file, blank_wells, use_fixed_od_blank=False):
     if use_fixed_od_blank:
         # Value given by experience. Use this option only for testing or if there
         #  is a strong reason behind not using measured blanks!!
+        logger.info(
+            f"Using fixed value for OD correction ({constants.FIXED_OD_BLANK_VALUE})" 
+            + " instead of blank from data.")
         blank_mean_od = constants.FIXED_OD_BLANK_VALUE
+    else:
+        logger.info(f"Determined {blank_mean_od} as blank for OD.")
+        
+    if exclude_blank_correction_for_reporter:
+        logger.info("Excluded blank correction for reporter values")
+        blank_mean_fu = 0
+    else:
+        logger.info(f"Determined {blank_mean_fu} as blank for reporter values.")
 
     def relative(od_val, fu_val):
         """Mapping function needed to catch ZeroDivisionErrors."""
@@ -198,13 +209,13 @@ def write_blank_corrected(wrapper_dict, outfile):
     to_write = ""
     for key in wrapper_dict:
         to_write += key
-        to_write += ";"
+        to_write += constants.SEP
         length_of_datapoints = len(wrapper_dict[key])
     to_write += "\n"
     for i in range(length_of_datapoints):
         for key in wrapper_dict:
             to_write += str(wrapper_dict[key][i]).replace(".", ",")
-            to_write += ";"
+            to_write += constants.SEP
         to_write += "\n"
 
     with open(outfile, "w") as out:
@@ -280,10 +291,10 @@ def sort_df(dataframe_or_csv_file):
     """Takes a DataFrame or an Excel CSV file handler as input.
     Returns a sorted DataFrame with "cycle", "time", and "temp" as first columns
     and all other columns sorted lexographically. Entries containing the strings
-    "Unnamend", "medium", "blank", and "empty" are removed from the returned
+    "Unnamend", "medium", and "blank" are removed from the returned
     DataFrame.
 
-    This function is supposed to called upon a baptized DataFrame.
+    This function is supposed to be called upon a baptized DataFrame.
     """
     # Get primary_df from input: Either from a DataFrame directly or a path string.
     if isinstance(dataframe_or_csv_file, pd.DataFrame):
@@ -322,3 +333,7 @@ def sort_df(dataframe_or_csv_file):
     secondary_df = primary_df[to_keep]
     secondary_df.drop_duplicates()
     return secondary_df
+
+
+if __name__ != "__main__":
+    print("\tInitialized blank correction module.")

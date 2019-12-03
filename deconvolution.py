@@ -10,11 +10,9 @@ import constants
 
 # Initialize logger.
 logger = constants.setup_logger(
-    log_file_name = __name__ + ".log",
-    log_level = logging.DEBUG,
-    logger_name = __name__
-    )
-
+    log_level=logging.DEBUG,
+    logger_name=__name__
+)
 
 
 class IntegrateDeconvolutionAlgorithm:
@@ -23,51 +21,52 @@ class IntegrateDeconvolutionAlgorithm:
         self.frame = tk.Frame(parent)
         other.nb.add(self.frame, text="MatLab Conversions")
 
-
         welcome_label = tk.Label(
             self.frame,
-            text = "Incorporate the MatLab deconvultion " \
-            + "algorithm to OCUTaF.\n Chose your raw data folder " \
-            + "to generate MatLab compatible TECAN files.\n" \
-            + "Use the file from the MatLab analysis together " \
+            text="Incorporate the MatLab deconvultion "
+            + "algorithm to OCUTaF.\n Chose your raw data folder "
+            + "to generate MatLab compatible TECAN files.\n"
+            + "Use the file from the MatLab analysis together "
             + "with optional naming files to generate standard output."
-            )
+        )
 
         self.reporter_name = tk.StringVar()
         self.reporter_name.set("LUX")
 
         self.get_file_button = tk.Button(
             self.frame,
-            text = "Set File",
-            command = self.get_file
-            )
+            text="Set File",
+            command=self.get_file
+        )
         self.input_file_name = tk.StringVar()
         self.input_file_path = tk.StringVar()
         self.input_file_label = tk.Label(
             self.frame,
-            textvariable = self.input_file_name
-            )
+            textvariable=self.input_file_name
+        )
 
-        self.subframe = tk.Frame(self.frame) # Subframe for symmetrical buttons
+        # Subframe for symmetrical buttons
+        self.subframe = tk.Frame(self.frame)
         self.run_button = tk.Button(
-            self.subframe, 
-            text = "Run", 
-            command = self.run
-            )
+            self.subframe,
+            text="Run",
+            command=self.run
+        )
         self.reset_button = tk.Button(
-            self.subframe, 
-            text = "Reset", 
-            command = self.reset
-            )
+            self.subframe,
+            text="Reset",
+            command=self.reset
+        )
         self.exit_button = tk.Button(
-            self.subframe, 
-            text = "Close", 
-            command = other.end_app
-            )
+            self.subframe,
+            text="Close",
+            command=other.end_app
+        )
 
         self.user_response = tk.StringVar()
         self.user_response.set("")
-        self.response_label = tk.Label(self.frame, textvariable = self.user_response)
+        self.response_label = tk.Label(
+            self.frame, textvariable=self.user_response)
 
         # Register widgets.
         welcome_label.grid(row=0, columnspan=2, padx=5, pady=5)
@@ -84,18 +83,15 @@ class IntegrateDeconvolutionAlgorithm:
         self.reset_button.grid(row=0, column=1, padx=5)
         self.exit_button.grid(row=0, column=2, padx=5)
 
-
     def get_file(self):
         file_name = askopenfilename()
         self.input_file_name.set(os.path.basename(file_name))
         self.input_file_path.set(file_name)
 
-
     def reset(self):
         self.input_file_name.set("")
         self.input_file_path.set("")
         self.user_response.set("")
-
 
     def run(self):
         self.written_barcodes = read_raw_data(self.reporter_name.get())
@@ -106,17 +102,20 @@ class IntegrateDeconvolutionAlgorithm:
         out = self.reorder_csv_for_single_point_data(
             self.input_file_path.get(),
             self.num_replicates_value.get()
-            )
+        )
         output_file_name = "".join([
-            os.path.splitext(self.input_file_name.get())[0], 
-            "_reordered", 
+            os.path.splitext(self.input_file_name.get())[0],
+            "_reordered",
             os.path.splitext(self.input_file_name.get())[1]
-            ])
+        ])
         output_file_path = os.path.dirname(self.input_file_path.get())
         output_file = os.path.join(output_file_path, output_file_name)
         with open(output_file, "w") as output_file:
             output_file.write(out)
 
-        self.user_response.set("Successfully written {}.".format(output_file_name))
+        self.user_response.set(
+            "Successfully written {}.".format(output_file_name))
 
 
+if __name__ != "__main__":
+    print("\tInitialized deconvolution module.")
