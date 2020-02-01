@@ -20,23 +20,21 @@ NUM_REPLICATES = 3
 DATA_DIR = os.getcwd()
 
 
-class DoseResponse:
+class GUIDoseResponseGUI:
     def __init__(self, parent, grand_parent, *args, **kwargs):
         self.grand_parent = grand_parent
         self.frame = tk.Frame(grand_parent)
         self.parent = parent
-        self.parent.nb.add(self.frame, text="Dose-Response")
-
+        self.parent.nb.add(self.frame, text="Dose Response")
 
 
 class DoseResponseCurve:
     """Representation of data points measured during a dose-response curve.
-    Is initialized from a headlined CSV file that contains information about 
-    a time point in the first column and data for different conditions in a 
-    number of replicates in the following columns. No additional meta information
-    should be contained in these CSVs.
+    Is initialized from a headlined CSV file that contains information about
+    a time point in the first column and data for different conditions in a
+    number of replicates in the following columns. No additional meta
+    information should be contained in these CSVs.
     """
-
     def __init__(
             self,
             input_csv_file,
@@ -65,7 +63,7 @@ class DoseResponseCurve:
                                        if any_string]
                     continue
                 cells = line.split(self.__sep)
-                current_time_point = str_to_num(cells[0])
+                current_time_point = constants.parse_number(cells[0])
                 data_by_replicates = self.__get_values_from_cells(cells)
 
                 data_constructor = self.__add_timepoint(data_constructor,
@@ -82,7 +80,7 @@ class DoseResponseCurve:
         list_of_lists = []
         inner_list = []
         for i, cell in enumerate(list_of_cells[1:]):
-            data_point = str_to_num(cell)
+            data_point = constants.parse_number(cell)
             inner_list.append(data_point)
             if (i + 1) % self.num_replicates == 0:  # self.num_replicates:
                 list_of_lists.append(list(inner_list))
@@ -104,7 +102,6 @@ class DoseResponseCurve:
 
     def dynamic_range_at(self, time_point):
         time_point_key = self.__select_closest_key_from_time_point(time_point)
-        # print(f"Instead of {time_point}, showing dynamic range at {time_point_key}")
         try:
             high = mean(self.data[time_point_key]["500 uM"])
             low = mean(self.data[time_point_key]["0 uM"])
@@ -124,8 +121,8 @@ class DoseResponseCurve:
 
     def time_delay(self):
         """Calculates the time delay as defined by Pinto et al. (2018):
-        'The time delay in gene induction was defined as the difference between 
-        the time at which the luciferase activity first exceeded its average 
+        'The time delay in gene induction was defined as the difference between
+        the time at which the luciferase activity first exceeded its average
         pre-induction value by 2-fold, and the time point ofinducer addition.'
         """
         response_treshold = 2 * self.mean_before_induction()
@@ -138,7 +135,7 @@ class DoseResponseCurve:
             if response >= response_treshold and time > self.ind_time:
                 time_of_threshold_reached = time
                 break
-        if time_of_threshold_reached is None:  # This may happen with inactive switches.
+        if time_of_threshold_reached is None:  # Happens with inactive switches
             time_delay = -1
         else:
             time_delay = time_of_threshold_reached - self.ind_time
@@ -185,34 +182,16 @@ def construct_csv(list_of_dose_responses, sep=";"):
     for drc in list_of_dose_responses:
         csv_constructor += sep.join((
             drc.name,
-            num_to_str(round(drc.mean_before_induction())),
-            num_to_str(round(drc.time_delay())),
-            num_to_str(round(drc.dynamic_range_at(840), 2)),
-            num_to_str(round(drc.dynamic_range_at(1120), 2))))
+            constants.num_to_str(round(drc.mean_before_induction())),
+            constants.num_to_str(round(drc.time_delay())),
+            constants.num_to_str(round(drc.dynamic_range_at(840), 2)),
+            constants.num_to_str(round(drc.dynamic_range_at(1120), 2))))
         csv_constructor += "\n"
     return csv_constructor
 
 
-def num_to_str(number):
-    """Converts a number type into a corresponding German number string."""
-    return str(number).replace(".", ",")
-
-
-def str_to_num(number_string):
-    """Converts a German formatted number string with ',' as decimal point to
-    a floating point number.
-    """
-    return float(number_string.replace(",", "."))
-
-
 if __name__ == "__main__":
-    # for a in (data_in_directory()):
-    #     print(a)
-    # import sys
-    # sys.exit()
-    print(construct_csv([drc for drc in data_in_directory()], sep=";"))
-
-
+    print(construct_csv([drc for drc in data_in_directory()], sep="\t"))
 
 
 if __name__ != "__main__":

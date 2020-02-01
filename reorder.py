@@ -32,7 +32,7 @@ logger = constants.setup_logger(
     )
 
 
-class ReorderForSinglePointAnalysis:
+class GUIReorderForSinglePointAnalysis:
     def __init__(self, parent, grand_parent, *args, **kwargs):
         self.grand_parent = grand_parent
         self.frame = tk.Frame(grand_parent)
@@ -46,10 +46,6 @@ class ReorderForSinglePointAnalysis:
             + "you want to reorder for single point analysis," \
             + " insert the number of replicates and hit run." \
             )
-
-        # What I want in future:
-        # Automatically format output file with specified time point.
-
         self.remove_whitespaces_from_input_file = self.parent.remove_quotation_marks.get()
 
         self.num_replicates_value = tk.IntVar()
@@ -369,7 +365,7 @@ class ReorderForSinglePointAnalysis:
         if not os.path.exists(self.input_file_path.get()):
             self.user_response.set("ERROR: INPUT FILE NOT DETECTED.")
             return
-        out = self.reorder_csv_for_single_point_data(
+        output_data_as_str = self.reorder_csv_for_single_point_data(
             self.input_file_path.get(),
             self.num_replicates_value.get()
             )
@@ -379,10 +375,10 @@ class ReorderForSinglePointAnalysis:
                 "_reordered",
                 "_reordered_and_bg_corrected"
                 )
-        output_file_path = os.path.dirname(self.input_file_path.get())
-        output_file = os.path.join(output_file_path, output_file_name)
+        output_file_dir = os.path.dirname(self.input_file_path.get())
+        output_file = os.path.join(output_file_dir, output_file_name)
         with open(output_file, "w") as output_file:
-            output_file.write(out)
+            output_file.write(output_data_as_str)
         self.user_response.set("Successfully written {}.".format(output_file_name))
 
 

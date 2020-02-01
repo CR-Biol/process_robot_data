@@ -52,9 +52,9 @@ class MainApplication(tk.Frame):
         self.nb = ttk.Notebook(parent)
         self.nb.grid()
         # Register main widgets as notebook pages.
-        raw_data.RawDataProcessing(self, self.parent)
-        reorder.ReorderForSinglePointAnalysis(self, self.parent)
-        dose_response.DoseResponse(self, self.parent)
+        raw_data.GUIRawDataProcessing(self, self.parent)
+        reorder.GUIReorderForSinglePointAnalysis(self, self.parent)
+        dose_response.GUIDoseResponseGUI(self, self.parent)
         # deconvolution.IntegrateDeconvolutionAlgorithm(self, self.parent)
 
         self.copyright = tk.Label(
@@ -96,7 +96,7 @@ class InsertTopBar:
         self.menubar = tk.Menu(self.grand_parent)
         self.add_helpmenu()
         self.add_optionmenu()
-        self.grand_parent.config(menu=self.menubar) # display the menu
+        self.grand_parent.config(menu=self.menubar)  # display the menu
 
     def add_optionmenu(self):
         optionmenu = tk.Menu(self.menubar, tearoff=0)
@@ -105,13 +105,12 @@ class InsertTopBar:
             command=lambda: None
         )
         optionmenu.add_checkbutton(
-            label = "Remove double quotation marks from input CSV files",
-            onvalue = True,
-            offvalue = False,
-            variable = self.parent.remove_quotation_marks
+            label="Remove double quotation marks from input CSV files",
+            onvalue=True,
+            offvalue=False,
+            variable=self.parent.remove_quotation_marks
         )
         self.menubar.add_cascade(label="Options", menu=optionmenu)
-
 
     def add_helpmenu(self):
         helpmenu = tk.Menu(self.menubar, tearoff=0)
@@ -138,7 +137,6 @@ class InsertTopBar:
         helpmenu.add_separator()
         helpmenu.add_command(label="Exit", command=self.parent.end_app)
         self.menubar.add_cascade(label="Help", menu=helpmenu)
-        
 
     def help(self, about):
         msg = ""
@@ -158,4 +156,3 @@ if __name__ == "__main__":
     logger.info("Started GUI session.")
     root.mainloop()
     logger.info("Ended GUI session.")
-
